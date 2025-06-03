@@ -10,11 +10,13 @@ WebAssembly版DuckDBとRechartsを使用したインタラクティブな分析�
 - **期間フィルタ機能**: 選択した期間でのデータ絞り込み
 - **レスポンシブデザイン**: スマートフォンでも快適に閲覧可能
 - **型安全**: TypeScriptによる堅牢な実装
+- **テスト済み**: Jest + React Testing Libraryによる自動テスト
 
 ## 📋 必要要件
 
 - Node.js 16.x 以上
 - npm または yarn
+- モダンブラウザ（SharedArrayBuffer対応）
 
 ## 🛠️ セットアップ
 
@@ -51,25 +53,30 @@ npm run dev
 │   │   ├── Dashboard.tsx        # 通常版ダッシュボード
 │   │   ├── DashboardLazy.tsx    # 遅延読み込み版ダッシュボード
 │   │   ├── DashboardOptimized.tsx # 最適化版ダッシュボード
-│   │   └── LoadingOverlay.tsx   # ローディング画面
+│   │   ├── LoadingOverlay.tsx   # ローディング画面
+│   │   └── __tests__/           # コンポーネントテスト
 │   ├── hooks/
 │   │   ├── useDuckDB.ts         # 通常版DuckDBフック
-│   │   └── useDuckDBLazy.ts     # 遅延読み込み版フック
-│   └── lib/
-│       ├── duckdb-public.ts     # メインのDuckDB実装
-│       ├── duckdb-lazy.ts       # 遅延読み込み版の実装
-│       └── preload-wasm.ts      # WASMプリロード機能
+│   │   ├── useDuckDBLazy.ts     # 遅延読み込み版フック
+│   │   └── __tests__/           # フックテスト
+│   ├── lib/
+│   │   ├── duckdb-public.ts     # メインのDuckDB実装
+│   │   ├── duckdb-lazy.ts       # 遅延読み込み版の実装
+│   │   └── preload-wasm.ts      # WASMプリロード機能
+│   └── types/                   # TypeScript型定義
 ├── public/
 │   └── data/
 │       └── sample-data.csv      # サンプルデータ
 ├── .eslintrc.json               # ESLint設定
 ├── .gitignore
-├── .prettierrc                  # Prettier設定
 ├── CLAUDE.md                    # Claude AI用の指示書
 ├── README.md                    # このファイル
+├── jest.config.js               # Jestテスト設定
+├── jest.setup.js                # テスト環境設定
 ├── next.config.js               # Next.js設定
 ├── package.json
-└── tsconfig.json                # TypeScript設定
+├── tsconfig.json                # TypeScript設定
+└── tsconfig.test.json           # テスト用TypeScript設定
 ```
 
 ## 🔧 技術スタック
@@ -79,6 +86,8 @@ npm run dev
 - **[DuckDB WASM](https://duckdb.org/docs/api/wasm/overview)** 1.28.0 - ブラウザ内SQL分析エンジン
 - **[Recharts](https://recharts.org/)** 2.10.4 - React用チャートライブラリ
 - **[React](https://react.dev/)** 18.2.0 - UIライブラリ
+- **[Jest](https://jestjs.io/)** 29.7.0 - テストフレームワーク
+- **[React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)** 14.1.2 - Reactコンポーネントテスト
 
 ## 💡 実装のポイント
 
@@ -98,6 +107,7 @@ npm run dev
 - 動的インポートでSSRを無効化
 - データロード状態の管理
 - レスポンシブコンテナで各デバイスに最適化
+- プログレスバーによる進捗表示
 
 ## 📊 サンプルデータ
 
@@ -111,12 +121,14 @@ date,category,value
 ...
 ```
 
+30件のサンプルデータ（2023年1月1日〜10日、カテゴリA/B/C）
+
 ## 🚀 使い方
 
 ### 利用可能なバージョン
 
 1. **通常版** (`/`) - ページロード時に自動的にDuckDBを初期化
-2. **遅延読み込み版** (`/lazy`) - ユーザーアクション後に初期化
+2. **遅延読み込み版** (`/lazy`) - ユーザーアクション後に初期化（初期画面付き）
 3. **最適化版** (`/optimized`) - バックグラウンドでプリフェッチを実行
 
 ### 基本的な使い方
@@ -144,6 +156,28 @@ DuckDB WASMファイルは約22MBあり、初期ロードがボトルネック�
 3. **キャッシュ活用**: ブラウザキャッシュを最大限活用
 4. **プログレス表示**: ダウンロード進捗をユーザーに表示
 
+## 🧪 テスト
+
+### テストの実行
+
+```bash
+# 単体テストの実行
+npm test
+
+# ウォッチモードでテスト実行
+npm run test:watch
+
+# カバレッジ付きでテスト実行
+npm run test:coverage
+```
+
+### テスト対象
+
+- コンポーネントテスト（DashboardOptimized）
+- カスタムフックテスト（useDuckDBLazy）
+- エラーハンドリング
+- ユーザーインタラクション
+
 ## 📝 スクリプト
 
 ```json
@@ -151,6 +185,22 @@ DuckDB WASMファイルは約22MBあり、初期ロードがボトルネック�
   "dev": "開発サーバーの起動",
   "build": "本番用ビルド", 
   "start": "本番サーバーの起動",
-  "lint": "ESLintの実行"
+  "lint": "ESLintの実行",
+  "test": "テストの実行",
+  "test:watch": "ウォッチモードでテスト実行",
+  "test:coverage": "カバレッジ付きテスト実行"
 }
 ```
+
+## 🔒 セキュリティ
+
+### SharedArrayBuffer対応
+
+以下のヘッダーを設定してSharedArrayBufferを有効化：
+
+```javascript
+Cross-Origin-Embedder-Policy: credentialless
+Cross-Origin-Opener-Policy: same-origin
+```
+
+これにより、CDNからのリソース読み込みとSharedArrayBufferの使用を両立。
