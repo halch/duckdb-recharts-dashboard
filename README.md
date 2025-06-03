@@ -51,16 +51,12 @@ npm run dev
 │   ├── hooks/
 │   │   └── useDuckDB.ts         # DuckDB操作用カスタムフック
 │   └── lib/
-│       ├── duckdb-client.ts     # DuckDBクライアント（未使用）
-│       ├── duckdb-cdn.ts        # CDN版実装（未使用）
-│       ├── duckdb-local.ts      # ローカルプロキシ版（未使用）
-│       └── duckdb-public.ts     # 現在使用中の実装
+│       ├── duckdb-public.ts     # メインのDuckDB実装
+│       ├── duckdb-lazy.ts       # 遅延読み込み版の実装
+│       └── preload-wasm.ts      # WASMプリロード機能
 ├── public/
-│   ├── data/
-│   │   └── sample-data.csv      # サンプルデータ
-│   └── wasm/                    # DuckDB WASMファイル（自動生成）
-├── scripts/
-│   └── copy-wasm.js             # WASMファイルコピースクリプト
+│   └── data/
+│       └── sample-data.csv      # サンプルデータ
 ├── .gitignore
 ├── CLAUDE.md                    # Claude AI用の指示書
 ├── README.md                    # このファイル
@@ -80,7 +76,8 @@ npm run dev
 ## 💡 実装のポイント
 
 ### DuckDB WASM統合
-- publicディレクトリにWASMファイルを配置してCORS問題を回避
+- CDN（jsdelivr）からWASMファイルを取得
+- WorkerはAPIプロキシ経由でCORS問題を回避
 - BigInt値を自動的にNumberに変換してRechartsとの互換性を確保
 - SQLクエリで明示的な型キャストを使用
 

@@ -28,9 +28,13 @@ export class WASMPreloader {
   
   // 複数のWASMファイルを並列でプリフェッチ
   static async prefetchAll(): Promise<void> {
+    // jsdelivr CDNを使用
+    const bundles = await import('@duckdb/duckdb-wasm').then(m => m.getJsDelivrBundles());
+    
     const urls = [
-      '/wasm/duckdb-mvp.wasm',
-      '/wasm/duckdb-browser-mvp.worker.js',
+      bundles.mvp.mainModule!,
+      bundles.mvp.mainWorker!,
+      '/api/duckdb-worker-cdn', // プロキシ経由のWorker
     ];
     
     await Promise.all(urls.map(url => this.prefetchWASM(url)));
@@ -39,8 +43,8 @@ export class WASMPreloader {
   // プリロードリンクをHTMLに追加
   static addPreloadLinks(): void {
     const links = [
-      { href: '/wasm/duckdb-mvp.wasm', as: 'fetch' },
-      { href: '/wasm/duckdb-browser-mvp.worker.js', as: 'script' },
+      { href: 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.0/dist/duckdb-mvp.wasm', as: 'fetch' },
+      { href: '/api/duckdb-worker-cdn', as: 'fetch' },
     ];
     
     links.forEach(({ href, as }) => {
@@ -57,7 +61,7 @@ export class WASMPreloader {
   static addResourceHints(): void {
     const link = document.createElement('link');
     link.rel = 'prefetch';
-    link.href = '/wasm/duckdb-mvp.wasm';
+    link.href = 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.0/dist/duckdb-mvp.wasm';
     document.head.appendChild(link);
   }
 }

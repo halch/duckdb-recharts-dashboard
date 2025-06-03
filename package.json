@@ -3,11 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node scripts/copy-wasm.js && next dev",
-    "build": "node scripts/copy-wasm.js && next build",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "node scripts/copy-wasm.js"
+    "lint": "next lint"
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "1.28.0",

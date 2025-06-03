@@ -47,34 +47,25 @@ export async function initializeDuckDB(onProgress?: (progress: number) => void) 
       // プログレスコールバック
       onProgress?.(10);
       
-      // publicディレクトリからWASMファイルを取得
-      const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
-        mvp: {
-          mainModule: '/wasm/duckdb-mvp.wasm',
-          mainWorker: '/wasm/duckdb-browser-mvp.worker.js',
-        },
-        eh: {
-          mainModule: '/wasm/duckdb-eh.wasm',
-          mainWorker: '/wasm/duckdb-browser-eh.worker.js',
-        },
-      };
+      // CDNから取得（jsdelivr）
+      const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
       
       onProgress?.(20);
       
       // バンドルを選択
-      const bundle = await duckdb.selectBundle(MANUAL_BUNDLES);
+      const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
       
       onProgress?.(40);
       
-      // Workerを作成
-      const worker = new Worker(bundle.mainWorker!);
+      // createWorkerメソッドを使用（成功した方法）
+      const worker = await duckdb.createWorker(bundle.mainWorker!);
       const logger = new duckdb.ConsoleLogger();
       
       onProgress?.(60);
       
       // DuckDBインスタンスを作成
       db = new duckdb.AsyncDuckDB(logger, worker);
-      await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+      await db.instantiate(bundle.mainModule!);
       
       onProgress?.(80);
       

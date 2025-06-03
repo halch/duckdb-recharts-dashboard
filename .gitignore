@@ -48,6 +48,3 @@ next-env.d.ts
 
 # OS
 Thumbs.db
-
-# DuckDB WASM files (auto-generated)
-/public/wasm/

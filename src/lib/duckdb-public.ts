@@ -3,36 +3,36 @@ import * as duckdb from '@duckdb/duckdb-wasm';
 let db: duckdb.AsyncDuckDB | null = null;
 let conn: duckdb.AsyncDuckDBConnection | null = null;
 
-// DuckDBの初期化（publicディレクトリ版）
+// DuckDBの初期化（テストページで成功した方法を使用）
 export async function initializeDuckDB() {
   if (db) return db;
   
   try {
-    // publicディレクトリからWASMファイルを取得
-    const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
-      mvp: {
-        mainModule: '/wasm/duckdb-mvp.wasm',
-        mainWorker: '/wasm/duckdb-browser-mvp.worker.js',
-      },
-      eh: {
-        mainModule: '/wasm/duckdb-eh.wasm',
-        mainWorker: '/wasm/duckdb-browser-eh.worker.js',
-      },
-    };
+    console.log('Starting DuckDB initialization...');
+    
+    // CDNバンドルを取得
+    const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+    console.log('CDN bundles:', JSDELIVR_BUNDLES);
     
     // バンドルを選択
-    const bundle = await duckdb.selectBundle(MANUAL_BUNDLES);
+    const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+    console.log('Selected bundle:', bundle);
     
-    // Workerを作成
-    const worker = new Worker(bundle.mainWorker!);
+    // createWorkerメソッドを使用（テストページと同じ）
+    const worker = await duckdb.createWorker(bundle.mainWorker!);
+    console.log('Worker created successfully');
+    
+    // ロガーを設定
     const logger = new duckdb.ConsoleLogger();
     
     // DuckDBインスタンスを作成
     db = new duckdb.AsyncDuckDB(logger, worker);
-    await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+    await db.instantiate(bundle.mainModule!);
+    console.log('DuckDB instantiated successfully');
     
     // 接続を作成
     conn = await db.connect();
+    console.log('Connection created successfully');
     
     return db;
   } catch (error) {

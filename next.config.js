@@ -2,21 +2,25 @@
 const nextConfig = {
   reactStrictMode: true,
   async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Cross-Origin-Embedder-Policy',
-            value: 'credentialless',
-          },
-          {
-            key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin',
-          },
-        ],
-      },
-    ];
+    // DuckDB WASMのCDN利用時はCOEPヘッダーを無効化
+    if (process.env.ENABLE_COEP === 'true') {
+      return [
+        {
+          source: '/:path*',
+          headers: [
+            {
+              key: 'Cross-Origin-Embedder-Policy',
+              value: 'require-corp',
+            },
+            {
+              key: 'Cross-Origin-Opener-Policy',
+              value: 'same-origin',
+            },
+          ],
+        },
+      ];
+    }
+    return [];
   },
   webpack: (config, { isServer }) => {
     // DuckDB WASMのための設定
