@@ -98,7 +98,7 @@ export default function Dashboard() {
       setDataLoaded(true);
       
     } catch (err) {
-      console.error('Failed to load data:', err);
+      // エラー処理
     }
   };
 
@@ -147,7 +147,7 @@ export default function Dashboard() {
       setCategoryData(catData);
 
     } catch (err) {
-      console.error('Failed to apply filter:', err);
+      // エラー処理
     }
   };
 

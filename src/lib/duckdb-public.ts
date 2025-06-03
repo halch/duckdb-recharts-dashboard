@@ -8,26 +8,14 @@ export async function initializeDuckDB() {
   if (db) return db;
   
   try {
-    console.log('Starting DuckDB initialization with CDN...');
-    
-    // SharedArrayBufferのサポートを確認
-    if (typeof SharedArrayBuffer !== 'undefined') {
-      console.log('SharedArrayBuffer is supported!');
-    } else {
-      console.log('SharedArrayBuffer is NOT supported');
-    }
-    
     // CDNバンドルを取得
     const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
-    console.log('CDN bundles:', JSDELIVR_BUNDLES);
     
     // バンドルを選択
     const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
-    console.log('Selected bundle:', bundle);
     
     // createWorkerメソッドを使用（CORS対応）
     const worker = await duckdb.createWorker(bundle.mainWorker!);
-    console.log('Worker created successfully');
     
     // ロガーを設定
     const logger = new duckdb.ConsoleLogger();
@@ -35,15 +23,12 @@ export async function initializeDuckDB() {
     // DuckDBインスタンスを作成
     db = new duckdb.AsyncDuckDB(logger, worker);
     await db.instantiate(bundle.mainModule!);
-    console.log('DuckDB instantiated successfully');
     
     // 接続を作成
     conn = await db.connect();
-    console.log('Connection created successfully');
     
     return db;
   } catch (error) {
-    console.error('Failed to initialize DuckDB:', error);
     throw error;
   }
 }
@@ -81,7 +66,6 @@ export async function loadCSVData(csvData: string) {
     
     return { success: true, count };
   } catch (error) {
-    console.error('Failed to load CSV data:', error);
     throw error;
   }
 }
@@ -128,11 +112,8 @@ export async function executeQuery(sql: string) {
     // BigIntをNumberに変換（再帰的に）
     const convertedData = convertBigIntToNumber(data);
     
-    console.log('Query result sample:', convertedData[0]); // デバッグ用
-    
     return convertedData;
   } catch (error) {
-    console.error('Query execution failed:', error);
     throw error;
   }
 }

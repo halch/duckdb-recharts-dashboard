@@ -56,3 +56,10 @@ src/
 2. より小さいWASMバンドルの使用検討
 3. サーバーサイドでのデータ前処理オプション
 4. リアルタイムデータストリーミング対応
+
+## 📝 SharedArrayBuffer対応
+
+このプロジェクトはSharedArrayBufferを有効化しています：
+- `Cross-Origin-Embedder-Policy: credentialless` ヘッダーを使用
+- `Cross-Origin-Opener-Policy: same-origin` ヘッダーを使用
+- CDNリソースへのアクセスとSharedArrayBufferの両立を実現

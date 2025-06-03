@@ -18,7 +18,6 @@ export class WASMPreloader {
       // レスポンスをキャッシュに保存（実際のデータは読まない）
       return;
     }).catch(error => {
-      console.error('Prefetch error:', error);
       // エラーが発生してもアプリケーションは継続
     });
     
@@ -34,7 +33,6 @@ export class WASMPreloader {
     const urls = [
       bundles.mvp.mainModule!,
       bundles.mvp.mainWorker!,
-      '/api/duckdb-worker-cdn', // プロキシ経由のWorker
     ];
     
     await Promise.all(urls.map(url => this.prefetchWASM(url)));
@@ -44,7 +42,6 @@ export class WASMPreloader {
   static addPreloadLinks(): void {
     const links = [
       { href: 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.0/dist/duckdb-mvp.wasm', as: 'fetch' },
-      { href: '/api/duckdb-worker-cdn', as: 'fetch' },
     ];
     
     links.forEach(({ href, as }) => {

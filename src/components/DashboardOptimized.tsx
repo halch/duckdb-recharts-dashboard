@@ -40,9 +40,7 @@ export default function DashboardOptimized() {
     // ユーザーがページに3秒以上滞在したらプリフェッチ開始
     const timer = setTimeout(() => {
       setIsPrefetching(true);
-      WASMPreloader.prefetchAll().then(() => {
-        console.log('WASM files prefetched');
-      });
+      WASMPreloader.prefetchAll();
     }, 3000);
 
     // Intersection Observerでボタンが見えたらプリロード
@@ -129,7 +127,7 @@ export default function DashboardOptimized() {
       setDataLoaded(true);
       
     } catch (err) {
-      console.error('Failed to load data:', err);
+      // エラー処理
     } finally {
       setQueryLoading(false);
     }
@@ -193,7 +191,7 @@ export default function DashboardOptimized() {
       setCategoryData(catData);
 
     } catch (err) {
-      console.error('Failed to apply filter:', err);
+      // エラー処理
     } finally {
       setQueryLoading(false);
     }

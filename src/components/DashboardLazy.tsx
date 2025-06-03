@@ -95,7 +95,7 @@ export default function DashboardLazy() {
       setDataLoaded(true);
       
     } catch (err) {
-      console.error('Failed to load data:', err);
+      // エラー処理
     } finally {
       setQueryLoading(false);
     }
@@ -159,7 +159,7 @@ export default function DashboardLazy() {
       setCategoryData(catData);
 
     } catch (err) {
-      console.error('Failed to apply filter:', err);
+      // エラー処理
     } finally {
       setQueryLoading(false);
     }

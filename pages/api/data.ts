@@ -18,7 +18,6 @@ export default async function handler(
     res.setHeader('Access-Control-Allow-Origin', '*'); // CORS対応
     res.status(200).send(csvData);
   } catch (error) {
-    console.error('Error reading CSV file:', error);
     res.status(500).json({ error: 'Failed to read data file' });
   }
 }

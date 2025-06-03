@@ -47,13 +47,6 @@ export async function initializeDuckDB(onProgress?: (progress: number) => void) 
       // プログレスコールバック
       onProgress?.(10);
       
-      // SharedArrayBufferのサポートを確認
-      if (typeof SharedArrayBuffer !== 'undefined') {
-        console.log('SharedArrayBuffer is supported!');
-      } else {
-        console.log('SharedArrayBuffer is NOT supported');
-      }
-      
       // CDNから取得（jsdelivr）
       const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
       
@@ -84,7 +77,6 @@ export async function initializeDuckDB(onProgress?: (progress: number) => void) 
       return db;
     } catch (error) {
       initPromise = null; // エラー時はリセット
-      console.error('Failed to initialize DuckDB:', error);
       throw error;
     }
   })();
@@ -125,7 +117,6 @@ export async function loadCSVData(csvData: string) {
     
     return { success: true, count };
   } catch (error) {
-    console.error('Failed to load CSV data:', error);
     throw error;
   }
 }
@@ -145,7 +136,6 @@ export async function executeQuery(sql: string) {
     
     return convertedData;
   } catch (error) {
-    console.error('Query execution failed:', error);
     throw error;
   }
 }
