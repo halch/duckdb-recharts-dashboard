@@ -47,6 +47,13 @@ export async function initializeDuckDB(onProgress?: (progress: number) => void) 
       // プログレスコールバック
       onProgress?.(10);
       
+      // SharedArrayBufferのサポートを確認
+      if (typeof SharedArrayBuffer !== 'undefined') {
+        console.log('SharedArrayBuffer is supported!');
+      } else {
+        console.log('SharedArrayBuffer is NOT supported');
+      }
+      
       // CDNから取得（jsdelivr）
       const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
       
@@ -57,7 +64,7 @@ export async function initializeDuckDB(onProgress?: (progress: number) => void) 
       
       onProgress?.(40);
       
-      // createWorkerメソッドを使用（成功した方法）
+      // createWorkerメソッドを使用（CORS対応）
       const worker = await duckdb.createWorker(bundle.mainWorker!);
       const logger = new duckdb.ConsoleLogger();
       

@@ -5,7 +5,7 @@ WebAssembly版DuckDBとRechartsを使用したインタラクティブな分析�
 ## 🚀 特徴
 
 - **高速データ処理**: WebAssembly版DuckDBによるブラウザ内でのSQL分析
-- **CDN配信**: jsdelivr CDNからDuckDB WASMを自動取得
+- **CDN配信 + SharedArrayBuffer**: jsdelivr CDNからの配信とSharedArrayBufferを両立
 - **インタラクティブな可視化**: Rechartsによる動的なグラフ表示（折れ線、棒、円グラフ）
 - **期間フィルタ機能**: 選択した期間でのデータ絞り込み
 - **レスポンシブデザイン**: スマートフォンでも快適に閲覧可能
@@ -41,8 +41,7 @@ npm run dev
 ```
 ├── pages/
 │   ├── api/
-│   │   ├── data.ts              # CSVデータ配信API
-│   │   └── duckdb-worker-cdn.ts # DuckDB Workerプロキシ（CORS対応）
+│   │   └── data.ts              # CSVデータ配信API
 │   ├── _app.tsx                 # Next.jsアプリケーション設定
 │   ├── index.tsx                # メインページ（通常版）
 │   ├── lazy.tsx                 # 遅延読み込み版
@@ -67,7 +66,6 @@ npm run dev
 ├── .gitignore
 ├── .prettierrc                  # Prettier設定
 ├── CLAUDE.md                    # Claude AI用の指示書
-├── LICENSE                      # MITライセンス
 ├── README.md                    # このファイル
 ├── next.config.js               # Next.js設定
 ├── package.json
@@ -86,8 +84,8 @@ npm run dev
 
 ### DuckDB WASM統合
 - CDN（jsdelivr）からWASMファイルを自動取得
+- COEP: credentiallessヘッダーでCDNリソースとSharedArrayBufferを両立
 - `duckdb.createWorker()`メソッドを使用した安定した初期化
-- WorkerはAPIプロキシ経由でCORS問題を回避（`/api/duckdb-worker-cdn`）
 - BigInt値を自動的にNumberに変換してRechartsとの互換性を確保
 - SQLクエリで明示的な型キャストを使用
 

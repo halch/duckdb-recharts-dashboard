@@ -3,12 +3,19 @@ import * as duckdb from '@duckdb/duckdb-wasm';
 let db: duckdb.AsyncDuckDB | null = null;
 let conn: duckdb.AsyncDuckDBConnection | null = null;
 
-// DuckDBの初期化（テストページで成功した方法を使用）
+// DuckDBの初期化（CDNから読み込み + SharedArrayBuffer対応）
 export async function initializeDuckDB() {
   if (db) return db;
   
   try {
-    console.log('Starting DuckDB initialization...');
+    console.log('Starting DuckDB initialization with CDN...');
+    
+    // SharedArrayBufferのサポートを確認
+    if (typeof SharedArrayBuffer !== 'undefined') {
+      console.log('SharedArrayBuffer is supported!');
+    } else {
+      console.log('SharedArrayBuffer is NOT supported');
+    }
     
     // CDNバンドルを取得
     const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
@@ -18,7 +25,7 @@ export async function initializeDuckDB() {
     const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
     console.log('Selected bundle:', bundle);
     
-    // createWorkerメソッドを使用（テストページと同じ）
+    // createWorkerメソッドを使用（CORS対応）
     const worker = await duckdb.createWorker(bundle.mainWorker!);
     console.log('Worker created successfully');
     

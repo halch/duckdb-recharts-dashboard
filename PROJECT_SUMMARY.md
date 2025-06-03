@@ -16,7 +16,8 @@
 
 1. **DuckDB統合**
    - CDN（jsdelivr）からWASMファイルを自動取得
-   - Web Worker非対応（COEPヘッダー制約のため）
+   - COEP: credentiallessヘッダーでCDNリソースとSharedArrayBufferを両立
+   - Web Workerによる並列処理でUIブロッキングを防止
    - BigInt→Number自動変換でRecharts互換性確保
 
 2. **3つの実装バージョン**
@@ -44,7 +45,7 @@ src/
 
 ## 🔑 実装のポイント
 
-1. **CORS対策**: WorkerファイルはAPIプロキシ経由で配信
+1. **SharedArrayBuffer対応**: COEP/COOPヘッダーでクロスオリジン分離
 2. **型安全性**: TypeScriptで完全型付け
 3. **パフォーマンス**: 22MBのWASMファイルの読み込み最適化
 4. **レスポンシブ**: モバイル対応UI
