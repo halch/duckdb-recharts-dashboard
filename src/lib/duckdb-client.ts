@@ -8,15 +8,19 @@ export async function initializeDuckDB() {
   if (db) return db;
   
   try {
-    // jsdelivr CDNからバンドルを取得
-    const bundles = duckdb.getJsDelivrBundles();
+    // CDNからDuckDB WASMファイルを取得
+    const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+    
+    // MVPバンドルを選択
+    const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+    
+    // DuckDB Workerを初期化
+    const worker = new Worker(bundle.mainWorker!);
+    const logger = new duckdb.ConsoleLogger();
     
     // DuckDBインスタンスを作成
-    const logger = new duckdb.ConsoleLogger();
-    const worker = await duckdb.createWorker(bundles.mvp.mainWorker!);
-    
     db = new duckdb.AsyncDuckDB(logger, worker);
-    await db.instantiate(bundles.mvp.mainModule!);
+    await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
     
     // 接続を作成
     conn = await db.connect();

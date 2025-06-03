@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { initializeDuckDB, loadCSVData, executeQuery as execQuery, closeDuckDB } from '../lib/duckdb-client';
+import { initializeDuckDB, loadCSVData, executeQuery as execQuery, closeDuckDB } from '../lib/duckdb-public';
 
 // DuckDBとの通信フック
 export function useDuckDB() {

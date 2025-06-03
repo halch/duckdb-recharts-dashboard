@@ -29,6 +29,7 @@ export default function Dashboard() {
   const [categoryData, setCategoryData] = useState<any[]>([]);
   const [dailyTotalData, setDailyTotalData] = useState<any[]>([]);
   const [selectedDateRange, setSelectedDateRange] = useState({ start: '', end: '' });
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   // 初期データロード
   useEffect(() => {
@@ -53,7 +54,8 @@ export default function Dashboard() {
       
       // 日別データに変換（横持ち形式）
       const groupedData = tsData.reduce((acc: any, row: any) => {
-        const dateStr = row.date;
+        // 日付をYYYY-MM-DD形式に変換
+        const dateStr = new Date(row.date).toISOString().split('T')[0];
         if (!acc[dateStr]) {
           acc[dateStr] = { date: dateStr };
         }
@@ -67,7 +69,7 @@ export default function Dashboard() {
       const categoryQuery = `
         SELECT 
           category,
-          SUM(value) as total_value
+          CAST(SUM(value) AS INTEGER) as total_value
         FROM sales_data
         GROUP BY category
         ORDER BY category
@@ -79,13 +81,21 @@ export default function Dashboard() {
       const dailyQuery = `
         SELECT 
           date,
-          SUM(value) as total
+          CAST(SUM(value) AS INTEGER) as total
         FROM sales_data
         GROUP BY date
         ORDER BY date
       `;
       const dailyData = await executeQuery(dailyQuery);
-      setDailyTotalData(dailyData);
+      
+      // 日付をフォーマット
+      const formattedDailyData = dailyData.map(row => ({
+        ...row,
+        date: new Date(row.date).toISOString().split('T')[0]
+      }));
+      
+      setDailyTotalData(formattedDailyData);
+      setDataLoaded(true);
       
     } catch (err) {
       console.error('Failed to load data:', err);
@@ -112,7 +122,7 @@ export default function Dashboard() {
       
       // 日別データに変換
       const groupedData = filtered.reduce((acc: any, row: any) => {
-        const dateStr = row.date;
+        const dateStr = new Date(row.date).toISOString().split('T')[0];
         if (!acc[dateStr]) {
           acc[dateStr] = { date: dateStr };
         }
@@ -126,7 +136,7 @@ export default function Dashboard() {
       const categoryQuery = `
         SELECT 
           category,
-          SUM(value) as total_value
+          CAST(SUM(value) AS INTEGER) as total_value
         FROM sales_data
         WHERE date >= '${selectedDateRange.start}' 
           AND date <= '${selectedDateRange.end}'
@@ -178,6 +188,7 @@ export default function Dashboard() {
       </div>
 
       {/* グラフセクション */}
+      {dataLoaded && (
       <div className="charts-grid">
         {/* 時系列グラフ */}
         <div className="chart-container">
@@ -224,7 +235,11 @@ export default function Dashboard() {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ category, percent }) => `${category}: ${(percent * 100).toFixed(0)}%`}
+                label={(entry) => {
+                  const total = categoryData.reduce((sum, d) => sum + d.total_value, 0);
+                  const percent = ((entry.value / total) * 100).toFixed(0);
+                  return `${entry.category}: ${percent}%`;
+                }}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="total_value"
@@ -253,6 +268,7 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
       </div>
+      )}
 
       <style jsx>{`
         .dashboard {
