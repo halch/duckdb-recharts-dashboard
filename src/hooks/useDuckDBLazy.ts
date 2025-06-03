@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import { initializeDuckDB, loadCSVData, executeQuery as execQuery, closeDuckDB } from '../lib/duckdb-lazy';
+import type { UseDuckDBLazyReturn, DuckDBQueryResult } from '../types/duckdb';
 
 // DuckDBの遅延読み込みフック
-export function useDuckDBLazy() {
+export function useDuckDBLazy(): UseDuckDBLazyReturn {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +46,7 @@ export function useDuckDBLazy() {
   }, [isInitialized]);
 
   // SQLクエリを実行
-  const executeQuery = async (sql: string) => {
+  const executeQuery = async (sql: string): Promise<DuckDBQueryResult[]> => {
     if (!isInitialized) {
       throw new Error('DuckDB not initialized');
     }

@@ -15,6 +15,7 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { useDuckDB } from '../hooks/useDuckDB';
+import type { SalesData, CategoryTotal, DailyTotal, TimeSeriesData } from '../types/duckdb';
 
 // カテゴリごとの色定義
 const COLORS = {
@@ -25,9 +26,9 @@ const COLORS = {
 
 export default function Dashboard() {
   const { isInitialized, isLoading, error, executeQuery } = useDuckDB();
-  const [timeSeriesData, setTimeSeriesData] = useState<any[]>([]);
-  const [categoryData, setCategoryData] = useState<any[]>([]);
-  const [dailyTotalData, setDailyTotalData] = useState<any[]>([]);
+  const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesData[]>([]);
+  const [categoryData, setCategoryData] = useState<CategoryTotal[]>([]);
+  const [dailyTotalData, setDailyTotalData] = useState<DailyTotal[]>([]);
   const [selectedDateRange, setSelectedDateRange] = useState({ start: '', end: '' });
   const [dataLoaded, setDataLoaded] = useState(false);
 
@@ -50,10 +51,10 @@ export default function Dashboard() {
         FROM sales_data
         ORDER BY date, category
       `;
-      const tsData = await executeQuery(timeSeriesQuery);
+      const tsData = await executeQuery(timeSeriesQuery) as SalesData[];
       
       // 日別データに変換（横持ち形式）
-      const groupedData = tsData.reduce((acc: any, row: any) => {
+      const groupedData = tsData.reduce((acc: Record<string, TimeSeriesData>, row) => {
         // 日付をYYYY-MM-DD形式に変換
         const dateStr = new Date(row.date).toISOString().split('T')[0];
         if (!acc[dateStr]) {
@@ -74,7 +75,7 @@ export default function Dashboard() {
         GROUP BY category
         ORDER BY category
       `;
-      const catData = await executeQuery(categoryQuery);
+      const catData = await executeQuery(categoryQuery) as CategoryTotal[];
       setCategoryData(catData);
 
       // 日別合計
@@ -86,7 +87,7 @@ export default function Dashboard() {
         GROUP BY date
         ORDER BY date
       `;
-      const dailyData = await executeQuery(dailyQuery);
+      const dailyData = await executeQuery(dailyQuery) as DailyTotal[];
       
       // 日付をフォーマット
       const formattedDailyData = dailyData.map(row => ({
@@ -118,10 +119,10 @@ export default function Dashboard() {
           AND date <= '${selectedDateRange.end}'
         ORDER BY date, category
       `;
-      const filtered = await executeQuery(filteredQuery);
+      const filtered = await executeQuery(filteredQuery) as SalesData[];
       
       // 日別データに変換
-      const groupedData = filtered.reduce((acc: any, row: any) => {
+      const groupedData = filtered.reduce((acc: Record<string, TimeSeriesData>, row) => {
         const dateStr = new Date(row.date).toISOString().split('T')[0];
         if (!acc[dateStr]) {
           acc[dateStr] = { date: dateStr };
@@ -143,7 +144,7 @@ export default function Dashboard() {
         GROUP BY category
         ORDER BY category
       `;
-      const catData = await executeQuery(categoryQuery);
+      const catData = await executeQuery(categoryQuery) as CategoryTotal[];
       setCategoryData(catData);
 
     } catch (err) {
