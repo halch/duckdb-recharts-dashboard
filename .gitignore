@@ -13,6 +13,7 @@
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
@@ -22,9 +23,11 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
@@ -35,3 +38,16 @@ next-env.d.ts
 
 # claude
 .claude/
+
+# editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+
+# DuckDB WASM files (auto-generated)
+/public/wasm/

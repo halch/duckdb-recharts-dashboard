@@ -1,4 +1,8 @@
-## Claude への指示内容 (CLAUDE.md)
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Claude への指示内容
 
 ### 目的
 
