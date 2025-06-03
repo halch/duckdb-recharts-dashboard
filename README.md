@@ -1,10 +1,11 @@
 # DuckDB Recharts Dashboard
 
-WebAssembly版DuckDBとRechartsを使用したインタラクティブな分析ダッシュボードです。BigQueryのデータを想定したローカルサンプルとして、高速なデータロードと表示を実現しています。
+WebAssembly版DuckDBとRechartsを使用したインタラクティブな分析ダッシュボードです。ブラウザ内でSQLクエリを実行し、リアルタイムでデータを可視化します。
 
 ## 🚀 特徴
 
 - **高速データ処理**: WebAssembly版DuckDBによるブラウザ内でのSQL分析
+- **CDN配信**: jsdelivr CDNからDuckDB WASMを自動取得
 - **インタラクティブな可視化**: Rechartsによる動的なグラフ表示（折れ線、棒、円グラフ）
 - **期間フィルタ機能**: 選択した期間でのデータ絞り込み
 - **レスポンシブデザイン**: スマートフォンでも快適に閲覧可能
@@ -41,15 +42,20 @@ npm run dev
 ├── pages/
 │   ├── api/
 │   │   ├── data.ts              # CSVデータ配信API
-│   │   └── duckdb-worker.ts     # DuckDB Workerプロキシ
+│   │   └── duckdb-worker-cdn.ts # DuckDB Workerプロキシ（CORS対応）
 │   ├── _app.tsx                 # Next.jsアプリケーション設定
-│   ├── _document.tsx            # HTMLドキュメント設定
-│   └── index.tsx                # メインページ
+│   ├── index.tsx                # メインページ（通常版）
+│   ├── lazy.tsx                 # 遅延読み込み版
+│   └── optimized.tsx            # 最適化版（プリフェッチ付き）
 ├── src/
 │   ├── components/
-│   │   └── Dashboard.tsx        # ダッシュボードコンポーネント
+│   │   ├── Dashboard.tsx        # 通常版ダッシュボード
+│   │   ├── DashboardLazy.tsx    # 遅延読み込み版ダッシュボード
+│   │   ├── DashboardOptimized.tsx # 最適化版ダッシュボード
+│   │   └── LoadingOverlay.tsx   # ローディング画面
 │   ├── hooks/
-│   │   └── useDuckDB.ts         # DuckDB操作用カスタムフック
+│   │   ├── useDuckDB.ts         # 通常版DuckDBフック
+│   │   └── useDuckDBLazy.ts     # 遅延読み込み版フック
 │   └── lib/
 │       ├── duckdb-public.ts     # メインのDuckDB実装
 │       ├── duckdb-lazy.ts       # 遅延読み込み版の実装
@@ -57,8 +63,11 @@ npm run dev
 ├── public/
 │   └── data/
 │       └── sample-data.csv      # サンプルデータ
+├── .eslintrc.json               # ESLint設定
 ├── .gitignore
+├── .prettierrc                  # Prettier設定
 ├── CLAUDE.md                    # Claude AI用の指示書
+├── LICENSE                      # MITライセンス
 ├── README.md                    # このファイル
 ├── next.config.js               # Next.js設定
 ├── package.json
@@ -76,8 +85,9 @@ npm run dev
 ## 💡 実装のポイント
 
 ### DuckDB WASM統合
-- CDN（jsdelivr）からWASMファイルを取得
-- WorkerはAPIプロキシ経由でCORS問題を回避
+- CDN（jsdelivr）からWASMファイルを自動取得
+- `duckdb.createWorker()`メソッドを使用した安定した初期化
+- WorkerはAPIプロキシ経由でCORS問題を回避（`/api/duckdb-worker-cdn`）
 - BigInt値を自動的にNumberに変換してRechartsとの互換性を確保
 - SQLクエリで明示的な型キャストを使用
 
@@ -141,17 +151,8 @@ DuckDB WASMファイルは約22MBあり、初期ロードがボトルネック�
 ```json
 {
   "dev": "開発サーバーの起動",
-  "build": "本番用ビルド",
+  "build": "本番用ビルド", 
   "start": "本番サーバーの起動",
-  "lint": "ESLintの実行",
-  "postinstall": "WASMファイルの自動コピー"
+  "lint": "ESLintの実行"
 }
 ```
-
-## 🤝 貢献
-
-プルリクエストを歓迎します。大きな変更の場合は、まずイシューを作成して変更内容を議論してください。
-
-## 📄 ライセンス
-
-このプロジェクトはMITライセンスの下で公開されています。
